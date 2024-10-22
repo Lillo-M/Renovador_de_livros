@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 int main() {
   cJSON *cjson_buf = NULL;
   cJSON *data_dev = NULL;
@@ -50,7 +49,10 @@ int main() {
   struct curl_slist *list = NULL;
 
   res = get_auth_token(&list, curl_handle, request_buffer, &chunk);
-
+  while (res == CURLE_COULDNT_RESOLVE_HOST) {
+    sleep(10);
+    res = curl_easy_perform(curl_handle);
+  }
   if (res != CURLE_OK) {
     (void)fprintf(stderr, "error: %s\n", curl_easy_strerror(res));
     curl_easy_cleanup(curl_handle);
@@ -58,8 +60,8 @@ int main() {
     free(chunk.memory);
     return 1;
   } else {
-    (void)printf("Size: %lu\n", (unsigned long)chunk.size);
-    (void)printf("Data: %s\n", chunk.memory);
+    //(void)printf("Size: %lu\n", (unsigned long)chunk.size);
+    //(void)printf("Data: %s\n", chunk.memory);
   }
 
   cjson_buf = cJSON_Parse(chunk.memory);
@@ -118,8 +120,8 @@ int main() {
     free(chunk.memory);
     return 1;
   } else {
-    (void)printf("Size: %lu\n", (unsigned long)chunk.size);
-    (void)printf("Data: %s\n", chunk.memory);
+    //(void)printf("Size: %lu\n", (unsigned long)chunk.size);
+    //(void)printf("Data: %s\n", chunk.memory);
   }
 
   (void)printf("\nretorno dos pendentes:\n%s\n\n", chunk.memory);
@@ -175,61 +177,66 @@ int main() {
     cJSON *dataDev = cJSON_GetObjectItem(titulo, "dataDevolucaoPrevista");
 
     (void)printf("dataDev: %s\n", dataDev->valuestring);
-    (void)printf("titulo reserv: %d\n",
-                 cJSON_GetObjectItem(titulo, "reservado")->valueint);
 
-    if (strcmp(data_atual, dataDev->valuestring) == 0 &&
-        (char)*cJSON_GetObjectItem(titulo, "qtdeRenovacoes")->valuestring <
-            '5' &&
-        !cJSON_GetObjectItem(titulo, "reservado")->valueint) {
-      cJSON *renov_arr = cJSON_CreateArray();
-      cJSON *temp = cJSON_CreateObject();
-      cJSON *aux = cJSON_CreateString(
-          cJSON_GetObjectItem(titulo, "codExemplar")->valuestring);
+    if (strcmp(data_atual, dataDev->valuestring) == 0) {
+      if ((char)*cJSON_GetObjectItem(titulo, "qtdeRenovacoes")->valuestring >=
+              '5' ||
+          cJSON_GetObjectItem(titulo, "reservado")->valueint) {
 
-      cJSON_AddItemToObject(temp, "codExamplar", aux);
-
-      aux = cJSON_CreateString(
-          cJSON_GetObjectItem(titulo, "codBibliotecaExemplar")->valuestring);
-
-      cJSON_AddItemToObject(temp, "codBibliotecaExemplar", aux);
-
-      cJSON_AddItemToArray(renov_arr, temp);
-      temp = NULL;
-      aux = NULL;
-
-      char *data_raw = cJSON_PrintUnformatted(renov_arr);
-
-      printf("Dia de devolver o livro: %s\n",
-             cJSON_GetObjectItem(titulo, "descricao")->valuestring);
-
-      curl_easy_setopt(
-          curl_handle, CURLOPT_URL,
-          "https://biblioteca.utfpr.edu.br/api/emprestimo/renovacao");
-      curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, list);
-      curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data_raw);
-      curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-      curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
-      curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-
-      res = curl_easy_perform(curl_handle);
-
-      if (res != CURLE_OK) {
-        (void)fprintf(stderr, "error: %s\n", curl_easy_strerror(res));
-        curl_easy_cleanup(curl_handle);
-        curl_slist_free_all(list);
-        free(chunk.memory);
-        return 1;
+        printf("Dia de devolver o livro: %s\n",
+               cJSON_GetObjectItem(titulo, "descricao")->valuestring);
       } else {
-        printf("Size: %lu\n", (unsigned long)chunk.size);
-        printf("Data: %s\n", chunk.memory);
-      }
-      fprintf(f, "\n");
-      fprintf(f, "%s", chunk.memory);
-      fprintf(f, "\n");
 
-      free(data_raw);
-      cJSON_Delete(renov_arr);
+        cJSON *renov_arr = cJSON_CreateArray();
+        cJSON *temp = cJSON_CreateObject();
+        cJSON *aux = cJSON_CreateString(
+            cJSON_GetObjectItem(titulo, "codExemplar")->valuestring);
+
+        cJSON_AddItemToObject(temp, "codExamplar", aux);
+
+        aux = cJSON_CreateString(
+            cJSON_GetObjectItem(titulo, "codBibliotecaExemplar")->valuestring);
+
+        cJSON_AddItemToObject(temp, "codBibliotecaExemplar", aux);
+
+        cJSON_AddItemToArray(renov_arr, temp);
+        temp = NULL;
+        aux = NULL;
+
+        char *data_raw = cJSON_PrintUnformatted(renov_arr);
+
+        printf("Dia de devolver o livro: %s\n",
+               cJSON_GetObjectItem(titulo, "descricao")->valuestring);
+
+        curl_easy_setopt(
+            curl_handle, CURLOPT_URL,
+            "https://biblioteca.utfpr.edu.br/api/emprestimo/renovacao");
+        curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, list);
+        curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data_raw);
+        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION,
+                         WriteMemoryCallback);
+        curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+        curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
+        res = curl_easy_perform(curl_handle);
+
+        if (res != CURLE_OK) {
+          (void)fprintf(stderr, "error: %s\n", curl_easy_strerror(res));
+          curl_easy_cleanup(curl_handle);
+          curl_slist_free_all(list);
+          free(chunk.memory);
+          return 1;
+        } else {
+          //printf("Size: %lu\n", (unsigned long)chunk.size);
+          //printf("Data: %s\n", chunk.memory);
+        }
+        fprintf(f, "\n");
+        fprintf(f, "%s", chunk.memory);
+        fprintf(f, "\n");
+
+        free(data_raw);
+        cJSON_Delete(renov_arr);
+      }
     } else
       printf("Não é dia de devolver o livro: %s\n",
              cJSON_GetObjectItem(titulo, "descricao")->valuestring);
