@@ -208,15 +208,16 @@ int main() {
         printf("Dia de devolver o livro: %s\n",
                cJSON_GetObjectItem(titulo, "descricao")->valuestring);
 
-        curl_easy_setopt(
+        (void)curl_easy_setopt(
             curl_handle, CURLOPT_URL,
             "https://biblioteca.utfpr.edu.br/api/emprestimo/renovacao");
-        curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, list);
-        curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data_raw);
-        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION,
-                         WriteMemoryCallback);
-        curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
-        curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+        (void)curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, list);
+        (void)curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data_raw);
+        (void)curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION,
+                               WriteMemoryCallback);
+        (void)curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+        (void)curl_easy_setopt(curl_handle, CURLOPT_USERAGENT,
+                               "libcurl-agent/1.0");
 
         res = curl_easy_perform(curl_handle);
 
@@ -227,19 +228,19 @@ int main() {
           free(chunk.memory);
           return 1;
         } else {
-          //printf("Size: %lu\n", (unsigned long)chunk.size);
-          //printf("Data: %s\n", chunk.memory);
+          // printf("Size: %lu\n", (unsigned long)chunk.size);
+          // printf("Data: %s\n", chunk.memory);
         }
-        fprintf(f, "\n");
-        fprintf(f, "%s", chunk.memory);
-        fprintf(f, "\n");
+        (void)fprintf(f, "\n");
+        (void)fprintf(f, "%s", chunk.memory);
+        (void)fprintf(f, "\n");
 
         free(data_raw);
         cJSON_Delete(renov_arr);
       }
     } else
-      printf("Não é dia de devolver o livro: %s\n",
-             cJSON_GetObjectItem(titulo, "descricao")->valuestring);
+      (void)printf("Não é dia de devolver o livro: %s\n",
+                   cJSON_GetObjectItem(titulo, "descricao")->valuestring);
   }
   fclose(f);
 
