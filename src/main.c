@@ -63,7 +63,7 @@ int main() {
 
     res = get_auth_token(&list, curl_handle, request_buffer, &chunk);
     while (res == CURLE_COULDNT_RESOLVE_HOST) {
-      sleep(10);
+      sleep(1);
       res = curl_easy_perform(curl_handle);
     }
     if (res != CURLE_OK) {
@@ -118,7 +118,7 @@ int main() {
 
     res = get_pendentes(&list, curl_handle, request_buffer, &chunk, auth_token);
     while (res == CURLE_COULDNT_RESOLVE_HOST) {
-      sleep(10);
+      sleep(1);
       res = curl_easy_perform(curl_handle);
     }
 
@@ -172,7 +172,7 @@ int main() {
 
     res = get_nome(&list, curl_handle, request_buffer, &chunk, auth_token);
     while (res == CURLE_COULDNT_RESOLVE_HOST) {
-      sleep(10);
+      sleep(1);
       res = curl_easy_perform(curl_handle);
     }
 
@@ -244,7 +244,7 @@ int main() {
           cJSON *aux = cJSON_CreateString(
               cJSON_GetObjectItem(titulo, "codExemplar")->valuestring);
 
-          cJSON_AddItemToObject(temp, "codExamplar", aux);
+          cJSON_AddItemToObject(temp, "codExemplar", aux);
 
           aux = cJSON_CreateString(
               cJSON_GetObjectItem(titulo, "codBibliotecaExemplar")
@@ -275,7 +275,7 @@ int main() {
 
           res = curl_easy_perform(curl_handle);
           while (res == CURLE_COULDNT_RESOLVE_HOST) {
-            sleep(10);
+            sleep(1);
             res = curl_easy_perform(curl_handle);
           }
 
