@@ -231,7 +231,7 @@ int main() {
 
           (void)fprintf(stdout, "Dia de devolver o livro: %s\n",
                         cJSON_GetObjectItem(titulo, "descricao")->valuestring);
-          system("feh --bg-scale " PATH "alert_red.png");// 
+          system("feh --bg-scale " PATH "alert_red.png"); //
           // Isto é uma maneira de me alertar sobre algum livro
           // que precisa ser devolvido.
           // Você pode colocar o que preferir, como e-mail,
@@ -264,6 +264,8 @@ int main() {
           (void)curl_easy_setopt(
               curl_handle, CURLOPT_URL,
               "https://biblioteca.utfpr.edu.br/api/emprestimo/renovacao");
+          (void)curl_easy_setopt(curl_handle, CURLOPT_CAINFO,
+                                 PATH "intermediate.pem");
           (void)curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, list);
           (void)curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data_raw);
           (void)curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION,
@@ -313,8 +315,11 @@ int main() {
       (void)fprintf(logFile, "data: %s\n", data_atual);
       (void)fprintf(logFile, "titulos-testados--\n");
       cJSON_ArrayForEach(titulo, titulos) {
-        (void)fprintf(logFile, "titulo: %s\n",
+        (void)fprintf(logFile, "Titulo: %s\n",
                       cJSON_GetObjectItem(titulo, "descricao")->valuestring);
+        (void)fprintf(
+            logFile, "Data de Devolução: %s\n",
+            cJSON_GetObjectItem(titulo, "dataDevolucaoPrevista")->valuestring);
       }
       fclose(logFile);
     }

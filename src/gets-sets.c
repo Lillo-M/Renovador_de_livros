@@ -9,6 +9,7 @@ CURLcode get_auth_token(struct curl_slist **list, CURL *curl_handle,
 
   (void)curl_easy_setopt(curl_handle, CURLOPT_URL,
                          "https://biblioteca.utfpr.edu.br/oauth/token");
+  (void)curl_easy_setopt(curl_handle, CURLOPT_CAINFO, PATH "intermediate.pem");
   (void)curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, *list);
   (void)curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, request_buffer);
   (void)curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)chunk);
@@ -36,6 +37,7 @@ CURLcode get_pendentes(struct curl_slist **list, CURL *curl_handle,
                          "https://biblioteca.utfpr.edu.br/api/emprestimo/"
                          "titulos-pendentes?showDetails=1");
   (void)curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, *list);
+  (void)curl_easy_setopt(curl_handle, CURLOPT_CAINFO, PATH "intermediate.pem");
   (void)curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION,
                          WriteMemoryCallback);
   (void)curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)chunk);
@@ -63,6 +65,7 @@ CURLcode get_nome(struct curl_slist **list, CURL *curl_handle,
   (void)curl_easy_setopt(curl_handle, CURLOPT_URL,
                          "https://biblioteca.utfpr.edu.br/api/pessoas");
   (void)curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, *list);
+  (void)curl_easy_setopt(curl_handle, CURLOPT_CAINFO, PATH "intermediate.pem");
   (void)curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION,
                          WriteMemoryCallback);
   (void)curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)chunk);
